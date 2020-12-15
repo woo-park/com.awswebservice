@@ -22,6 +22,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/","/**", "/css/**", "/images/**",
                         "/js/**", "/h2-console/**").permitAll()
+                .antMatchers("/oauth2/**").permitAll()
+                .antMatchers("/login/**").permitAll()
                 .antMatchers("/api/v1/**").hasRole(Role.USER.name())
                 .anyRequest().authenticated()
                 .and()
@@ -31,6 +33,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .oauth2Login()
                 .userInfoEndpoint()
                 .userService(customUserOAuth2UserService);
-        super.configure(http);
+//        super.configure(http);
     }
 }
