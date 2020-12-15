@@ -1,20 +1,21 @@
 package com.awswebservice.domain.user;
 
 
-import com.awswebservice.domain.BaseTimeEntity;
+//import com.awswebservice.domain.BaseTimeEntity;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
+import com.awswebservice.domain.user.Role;
 
 @Getter
 @NoArgsConstructor
 @Entity
-public class User extends BaseTimeEntity {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false)
     private String name;

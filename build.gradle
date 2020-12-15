@@ -21,7 +21,7 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: "com.ewerk.gradle.plugins.querydsl"
 
 
-group 'com.querydsl'
+group 'com.awsservice'
 version '1.0-SNAPSHOT'
 sourceCompatibility = 1.8
 
@@ -60,12 +60,16 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-mustache')
     compile('com.h2database:h2')
 
+
+
     compile('org.springframework.session:spring-session-jdbc')      // to sync multiple tomcats' => session
 
 
 
     // https://mvnrepository.com/artifact/org.springframework.security/spring-security-messaging
     compile group: 'org.springframework.security', name: 'spring-security-messaging', version: '4.0.1.RELEASE'
+
+
 
     compile('org.springframework.boot:spring-boot-starter-oauth2-client')
     compile('org.springframework.session:spring-session-jdbc')      // to sync multiple tomcats' => session
@@ -78,6 +82,8 @@ dependencies {
     testCompile("org.springframework.security:spring-security-test")
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
+
+//    testCompile "io.rest-assured:rest-assured:3.1.0"
 }
 
 
