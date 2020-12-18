@@ -25,7 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
 
-//    private final CustomUserOAuth2UserService customUserOAuth2UserService;
+    private final CustomUserOAuth2UserService customUserOAuth2UserService;
 
 
     @Autowired
@@ -87,13 +87,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/","/**", "/css/**", "/images/**",
                         "/js/**", "/h2-console/**","/login/**").permitAll()
+                .antMatchers("/oauth2/**").permitAll()
+                .antMatchers("/login/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
 //                .anyRequest().authenticated()
                 .and()
                 .apply(new JwtAuthenticationConfigurer(jwtAuthenticationService))
                 .and()
 
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .logout()
+                .logoutSuccessUrl("/")
+                .and()
+                .oauth2Login()
+                .userInfoEndpoint()
+                .userService(customUserOAuth2UserService);
     }
 
     @Autowired
