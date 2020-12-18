@@ -1,4 +1,4 @@
-package com.awswebservice.web.dto;
+package com.awswebservice.web;
 
 //import com.awswebservice.config.auth.LoginUser;
 //import com.awswebservice.config.auth.dto.SessionUser;

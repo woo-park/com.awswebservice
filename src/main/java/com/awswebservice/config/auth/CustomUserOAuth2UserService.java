@@ -3,8 +3,8 @@ package com.awswebservice.config.auth;
 
 import com.awswebservice.config.auth.dto.OAuthAttributes;
 import com.awswebservice.config.auth.dto.SessionUser;
-import com.awswebservice.domain.user.User;
-import com.awswebservice.domain.user.UserRepository;
+import com.awswebservice.domain.user.Account;
+import com.awswebservice.domain.user.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -21,7 +21,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Service
 public class CustomUserOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-    private final UserRepository userRepository;
+    private final AccountRepository accountRepository;
     private final HttpSession httpSession;
 
     @Override
@@ -37,7 +37,7 @@ public class CustomUserOAuth2UserService implements OAuth2UserService<OAuth2User
         OAuthAttributes attributes = OAuthAttributes.
                                         of(registrationId, userNameAttributeName, oAuth2User.getAttributes()); //   OAuth2UserService 를 통해 가져온 data 를 담는 class입니다
 
-        User user = saveOrUpdate(attributes);   // saveOrUpdate method needs to be defined here
+        Account user = saveOrUpdate(attributes);   // saveOrUpdate method needs to be defined here
 
         httpSession.setAttribute("user", new SessionUser(user));    //  session 에 사용자 정보를 저장하기 위한 dto class
 
@@ -49,13 +49,13 @@ public class CustomUserOAuth2UserService implements OAuth2UserService<OAuth2User
         );
     }
 
-    private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getEmail())
+    private Account saveOrUpdate(OAuthAttributes attributes) {
+        Account user = accountRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.update(attributes.getName(), attributes.getPicture()))    //update takes in two args
                 .orElse(attributes.toEntity()); // if findByEmail fails
 
         // User user Entity made
-        return userRepository.save(user);   // now saved to repo
+        return accountRepository.save(user);   // now saved to repo
     }
 
 }

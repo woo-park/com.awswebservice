@@ -1,7 +1,8 @@
 package com.awswebservice.config.auth.dto;
 
+import com.awswebservice.domain.user.Account;
 import com.awswebservice.domain.user.Role;
-import com.awswebservice.domain.user.User;
+//import com.awswebservice.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -83,8 +84,8 @@ public class OAuthAttributes {
 
 
 
-    public User toEntity() {
-        return User.builder()
+    public Account toEntity() {
+        return Account.builder()
                 .name(name)
                 .email(email)
                 .picture(picture)

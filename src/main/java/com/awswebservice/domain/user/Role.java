@@ -21,4 +21,6 @@ public enum Role {
     private final String key;
     private final String title;
 
+//    USER, ADMIN
+
 }

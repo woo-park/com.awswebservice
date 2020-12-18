@@ -1,6 +1,6 @@
 package com.awswebservice.config.auth.dto;
 
-import com.awswebservice.domain.user.User;
+import com.awswebservice.domain.user.Account;
 import lombok.Getter;
 
 import java.io.Serializable;
@@ -12,7 +12,7 @@ public class SessionUser implements Serializable {  //직렬화 기능을 가진
     private String email;
     private String picture;
 
-    public SessionUser(User user) {
+    public SessionUser(Account user) {
         this.name = user.getName();
         this.email = user.getEmail();
         this.picture = user.getPicture();
