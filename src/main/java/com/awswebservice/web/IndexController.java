@@ -18,10 +18,9 @@ public class IndexController {
 //    private final PostsService postsService;
     private final HttpSession httpSession;        // no need due to @LoginUser Annotation
 
-    @GetMapping("/")
+//    @GetMapping("/")
     public String index(Model model, @LoginUser SessionUser user) {
 //        model.addAttribute("posts", postsService.findAllDesc());
-
 //        SessionUser user = (SessionUser) httpSession.getAttribute("user");    // no need due to @LoginUser Annotation
 
         if(user != null) {
@@ -36,6 +35,42 @@ public class IndexController {
 
         return "security_test";
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //
