@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,20 +19,30 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 @Configuration
 //@RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+    @Autowired
+    UserDetailsService userDetailsService;
 
 
 //    private final CustomUserOAuth2UserService customUserOAuth2UserService;
@@ -87,14 +98,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //    }
 
 
+    /*
+    *
+    인증이란?
+        유저가 누구인지 확인하는 절차, 회원가입하고 로그인 하는 것.
+
+    인가란?
+        유저에 대한 권한을 허락하는 것.
+    *
+    * */
+
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");        // 인가를 미리 등록 (메모리방식) // 사실은 유저를 동적으로 추가하고, 권한도 동적으로 생성하고
+//        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS");
+//        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN");          // 이렇게하면 admin이 user 페이지 권한이없다
+        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS","USER");
+        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN","SYS","USER");          // 이것보다 좋은 방법은 role hierarchy 를 통해 인가 정책을 짜는것입니다.
+
+    }
 
     // 강의 2) 사용자 정의 보안 기능 구현
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+//            .antMatcher("/")       //강의 11)     // authorizeRequests()전에 antMatchers를 하면 부분부분 인가 정책을 하는것이고        // "특정한 요청에 인가정책에 따르게... vs 모든요청에 인가정책..."
             .authorizeRequests()            // 요청의 대한 보안검색
+                .antMatchers("/login").permitAll()  //강의 12)
+            .antMatchers("/user").hasRole("USER")        // antMatchers가 authorizeRequests()후에 오면, 모든 url을 인가 정책에 따르게 하는것이다     //"모든 요청에 대해서 인가 정책에 따르게 하겠습니다."
+            .antMatchers("/admin/pay").hasRole("ADMIN")
+            .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
             .anyRequest().authenticated();
+
+
         http
             .formLogin()                   // 인증방식은 기본적인 form 방식으로 username & password
 //            .loginPage("/loginPage")       // 간편하지만 밑에 loginProcessingUrl이 더 활용성이 좋다    <- / 로들어왔을때, loginpage로 돌린다
@@ -103,15 +140,28 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            .usernameParameter("userId")    // custom userid & passwd param
 //            .passwordParameter("passwd")
             .loginProcessingUrl("/login_proc")      //customizing
-            .successHandler(new AuthenticationSuccessHandler() {
+
+                //밑과 같으나, 밑 밑 successHandler는 redirect시 cache에서 가고자하던 url을 꺼내서 보내준다
+//            .successHandler(new AuthenticationSuccessHandler() {
+//                @Override
+//                public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//                    System.out.println("authentication" + authentication.getName());
+//
+//                    response.sendRedirect("/");
+//                }
+//
+//            })
+            .successHandler(new AuthenticationSuccessHandler() {        // 강의 12)
                 @Override
                 public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                    System.out.println("authentication" + authentication.getName());
-
-                    response.sendRedirect("/");
+                    RequestCache requestCache = new HttpSessionRequestCache();      // 이 class를 활용해서
+                    SavedRequest savedRequest = requestCache.getRequest(request, response); // 원래 사용자가 가고자하던 그 url정보를 가지고있습니다.
+                    String redirectUrl = savedRequest.getRedirectUrl();
+                    System.out.println("redirectUrl: " + redirectUrl);
+                    response.sendRedirect(redirectUrl);
                 }
-
-            }).failureHandler(new AuthenticationFailureHandler() {
+            })
+            .failureHandler(new AuthenticationFailureHandler() {
                 @Override
                 public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
                     System.out.println("authentication" + exception.getMessage());
@@ -119,8 +169,71 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     response.sendRedirect("/login");
                 }
             })
-            .permitAll();
+            .permitAll()
+            .and()
+            .rememberMe()
+            .rememberMeParameter("remember")
+            .tokenValiditySeconds(3600)
+            .userDetailsService(userDetailsService)   // 유저객채를 rememberMe 인증시 필요한 class
+            ;
 
+
+        // 강의 12)
+        http
+                .exceptionHandling()        //
+//                .authenticationEntryPoint(new AuthenticationEntryPoint() {        //로그인 하지않고 바로 접근햇을때 보여지는 페이지 <- 물론 여기 login은 커스텀 login. not spring의 login
+//                    @Override
+//                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+//                        response.sendRedirect("/login");
+//                    }
+//                }) //인증 예외
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        response.sendRedirect("/denied");
+                    }
+                });  //인가예외
+
+        // 1.1
+        // 즉 AntPathRequestMatcher(/logout) 이 성립이될시에,
+        // Authentication객채를 handler에 넘기고,
+        // Authentication으로부터 SecurityContext를 꺼낼수있다
+        // 여기 까지 진행되면, SecurityContextLogoutHandler에 SecurityContext가 넘어가고,
+        // 그 안에서 session invalidate,   cookies delete,   SecurityContextHolder.clearContext()를 할수있다
+
+        // 1.2
+        // 위의 필터가 끝나면
+        // 여기(SimpleUrlLogoutSuccessHandler)에 도달한다
+
+
+        http
+            .logout()
+            .logoutUrl("/logout")                               //원칙적으론 post방식만
+            .logoutSuccessUrl("/login")
+            .addLogoutHandler(new LogoutHandler() {             // 1.1
+                @Override
+                public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+                    HttpSession session = request.getSession();
+                    session.invalidate();                       // session을 무효화 // 로그아웃된 유저의 session을 빈것으로 무효화
+                }
+            })
+            .logoutSuccessHandler(new LogoutSuccessHandler() {      //없어도 /login으로 가네..? 그리고 debug하면 cannot find local variable logoutsuccesshandler나온다
+                @Override
+                public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+                    System.out.println("logout");
+                    response.sendRedirect("/login");
+                }
+            })
+            .deleteCookies("remember-me")
+            ;
+
+
+        http
+            .sessionManagement()
+                .sessionFixation().changeSessionId()    // servlet 3.1 이상은 기본으로 changeSessionId invoked되지만, custom할수있다 ( none, migrateSession <- 3.1이하 , newSession 으로  // 세션 고정 공격을 막기위해 cookie session id값을 바꿔줘야한다
+            .maximumSessions(1)
+            .maxSessionsPreventsLogin(false) //default는 false    // true는 login을 아예 못하게 만드는 전략   // false는 이전session에서 더이상 활동못하게 막는 전략
+            ;
     }
 
 
