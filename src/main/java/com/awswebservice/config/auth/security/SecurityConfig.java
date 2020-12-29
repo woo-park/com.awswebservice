@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -124,7 +125,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     // db 연동방식
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService);
+//        auth.userDetailsService(userDetailsService); //customAuthenticationProvider가 없었을때 이렇게
+        auth.authenticationProvider(authenticationProvider());
+    }
+
+    @Bean
+    public AuthenticationProvider authenticationProvider () {
+        return new CustomAuthenticationProvider();
     }
 
     //메모리 방식
@@ -160,7 +167,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http    .csrf().disable()
                 .authorizeRequests()
 //                .antMatchers("/","/**","/users","/users/**").permitAll()
-                .antMatchers("/","/user/login/**","/users").permitAll()
+                .antMatchers("/","/users","/user/login/**").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")

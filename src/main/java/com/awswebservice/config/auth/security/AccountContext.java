@@ -1,11 +1,13 @@
 package com.awswebservice.config.auth.security;
 
 import com.awswebservice.domain.user.Account;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
+@Getter
 public class AccountContext extends User {
     private final Account account;
 
