@@ -3,12 +3,12 @@ package com.awswebservice.domain.user;
 
 //import com.awswebservice.domain.BaseTimeEntity;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import javax.persistence.*;
 import com.awswebservice.domain.user.Role;
-import lombok.Setter;
+
+import java.io.Serializable;
 
 
 //@Setter
@@ -112,13 +112,44 @@ import lombok.Setter;
 //    }
 
 
-
+//}
+//@ToString(exclude = {"userRoles"})
+//@Getter
+//@Setter
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Builder
+//@Entity
+//public class Account implements Serializable {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private long id;
+//
+//    @Column(nullable = false)
+//    private String name;
+//
+//    @Column(nullable = false)
+//    private String email;
+//
+//
+//    @Column(nullable = true)
+//    private String userRoles;
+//
+//    @Column
+//    private String password;
+//
 //}
 
+
+
+//}
+//@ToString(exclude = {"userRoles"})
 @Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-public class Account {
+public class Account implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -129,12 +160,25 @@ public class Account {
     @Column(nullable = false)
     private String email;
 
-    @Column
+
+    @Column(nullable = true)
     private String picture;     //not sure how picture is a string
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)       //empty false
+    @Column(nullable = true)       //empty false
     private Role role;
+
+
+    @Column(nullable = true)
+    private String userRoles;
+
+    @Column(nullable = true)
+    private String userRole;
+
+
+    @Column
+    private String password;
+
 
     @Builder
     public Account(String name, String email, String picture, Role role) { //using the private field variables

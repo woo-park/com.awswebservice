@@ -7,6 +7,7 @@ import com.awswebservice.domain.user.Role;
 //import com.awswebservice.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,6 +15,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,6 +23,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -109,19 +113,67 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     * */
 
 
+    // 필터 건더뛰기
+    @Override
+    public void configure(WebSecurity web) throws Exception{
+        web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
+
+
+
+    // db 연동방식
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");        // 인가를 미리 등록 (메모리방식) // 사실은 유저를 동적으로 추가하고, 권한도 동적으로 생성하고
-//        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS");
-//        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN");          // 이렇게하면 admin이 user 페이지 권한이없다
-        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS","USER");
-        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN","SYS","USER");          // 이것보다 좋은 방법은 role hierarchy 를 통해 인가 정책을 짜는것입니다.
+        auth.userDetailsService(userDetailsService);
+    }
 
+    //메모리 방식
+//    @Override
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//
+//        /*
+//        auth.inMemoryAuthentication().withUser("user").password("{noop}1111").roles("USER");        // 인가를 미리 등록 (메모리방식) // 사실은 유저를 동적으로 추가하고, 권한도 동적으로 생성하고
+////        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS");
+////        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN");          // 이렇게하면 admin이 user 페이지 권한이없다
+//        auth.inMemoryAuthentication().withUser("sys").password("{noop}1111").roles("SYS","USER");
+//        auth.inMemoryAuthentication().withUser("admin").password("{noop}1111").roles("ADMIN","SYS","USER");          // 이것보다 좋은 방법은 role hierarchy 를 통해 인가 정책을 짜는것입니다.
+//        */
+//
+//
+//        //실전
+//        String password = passwordEncoder().encode("1111");
+//        auth.inMemoryAuthentication().withUser("user").password(password).roles("USER");        // 인가를 미리 등록 (메모리방식) // 사실은 유저를 동적으로 추가하고, 권한도 동적으로 생성하고
+//        auth.inMemoryAuthentication().withUser("manager").password(password).roles("MANAGER","USER");
+//        auth.inMemoryAuthentication().withUser("admin").password(password).roles("ADMIN","MANAGER","USER");          // 이것보다 좋은 방법은 role hierarchy 를 통해 인가 정책을 짜는것입니다.
+//
+//    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     // 강의 2) 사용자 정의 보안 기능 구현
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        http    .csrf().disable()
+                .authorizeRequests()
+//                .antMatchers("/","/**","/users","/users/**").permitAll()
+                .antMatchers("/","/user/login/**","/users").permitAll()
+                .antMatchers("/mypage").hasRole("USER")
+                .antMatchers("/messages").hasRole("MANAGER")
+                .antMatchers("/config").hasRole("ADMIN")
+
+                .antMatchers("/login").permitAll()  //강의 12)
+//                .antMatchers("/user").hasRole("USER")        // antMatchers가 authorizeRequests()후에 오면, 모든 url을 인가 정책에 따르게 하는것이다     //"모든 요청에 대해서 인가 정책에 따르게 하겠습니다."
+                .antMatchers("/admin/pay").hasRole("ADMIN")
+                .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
+                .anyRequest().authenticated();
+//                .and()
+//                .formLogin();
+
+        /*
         http
 //            .antMatcher("/")       //강의 11)     // authorizeRequests()전에 antMatchers를 하면 부분부분 인가 정책을 하는것이고        // "특정한 요청에 인가정책에 따르게... vs 모든요청에 인가정책..."
             .authorizeRequests()            // 요청의 대한 보안검색
@@ -130,7 +182,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/admin/pay").hasRole("ADMIN")
             .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
             .anyRequest().authenticated();
-
+*/
 
         http
             .formLogin()                   // 인증방식은 기본적인 form 방식으로 username & password

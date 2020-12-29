@@ -8,3 +8,10 @@ INSERT INTO USER (id, username, password, role) values (100, 'dinesh', '$2a$04$H
 INSERT INTO USER (id, username, password, role) values (101, 'anamika', '$2a$04$HCZQH4c0VIIz0KxO1Ux.c.REEM.sQZDyA8eZl8A48bBIYIczzSET6', 'USER');
 INSERT INTO USER (id, username, password, role) values (102, 'arnav', '$2a$04$Y5tgmB9IAsE4yPrA.oghQO9jfD6u4qSviHCbVXww3FXgOTnC4da0a', 'ADMIN');
 INSERT INTO USER (id, username, password, role) values (103, 'rushika', '$2a$04$Y5tgmB9IAsE4yPrA.oghQO9jfD6u4qSviHCbVXww3FXgOTnC4da0a', 'ADMIN');
+
+
+INSERT INTO ACCOUNT (id, email, name, password, picture, role, user_role, user_roles) values (103, '2@3', 'user', '$2a$10$ZZJr1nYeioNPXRiDgHm3/ecgXiUifEqAiPQtnjb2g6g7LYib/zygy', '','', 'ROLE_USER','');
+--
+-- INSERT INTO ACCOUNT (id, name, password, userRole) values (103, 'user', '$2a$10$ZZJr1nYeioNPXRiDgHm3/ecgXiUifEqAiPQtnjb2g6g7LYib/zygy', 'ROLE_USER');
+-- INSERT INTO ACCOUNT (id, name, password, userRole) values (103, 'manager', '$2a$10$ZZJr1nYeioNPXRiDgHm3/ecgXiUifEqAiPQtnjb2g6g7LYib/zygy', 'ROLE_MANAGER');
+-- INSERT INTO ACCOUNT (id, name, password, userRole) values (103, 'admin', '$2a$10$ZZJr1nYeioNPXRiDgHm3/ecgXiUifEqAiPQtnjb2g6g7LYib/zygy', 'ROLE_ADMIN');
