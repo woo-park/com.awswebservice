@@ -194,11 +194,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .formLogin()                   // 인증방식은 기본적인 form 방식으로 username & password
 //            .loginPage("/loginPage")       // 간편하지만 밑에 loginProcessingUrl이 더 활용성이 좋다    <- / 로들어왔을때, loginpage로 돌린다
-            .defaultSuccessUrl("/")
             .failureUrl("/login")
 //            .usernameParameter("userId")    // custom userid & passwd param
 //            .passwordParameter("passwd")
+            .loginPage("/login")
             .loginProcessingUrl("/login_proc")      //customizing
+            .defaultSuccessUrl("/")
 
                 //밑과 같으나, 밑 밑 successHandler는 redirect시 cache에서 가고자하던 url을 꺼내서 보내준다
 //            .successHandler(new AuthenticationSuccessHandler() {
@@ -218,6 +219,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     String redirectUrl = savedRequest.getRedirectUrl();
                     System.out.println("redirectUrl: " + redirectUrl);
                     response.sendRedirect(redirectUrl);
+
+
+//                    https://github.com/onjsdnjs/corespringsecurityfinal/blob/master/src/main/java/io/security/corespringsecurity/security/handler/FormAuthenticationSuccessHandler.java
                 }
             })
             .failureHandler(new AuthenticationFailureHandler() {
