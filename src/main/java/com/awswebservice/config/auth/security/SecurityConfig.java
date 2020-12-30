@@ -3,6 +3,7 @@ package com.awswebservice.config.auth.security;
 
 //import com.wavestoked.domain.user.Role;
 //import com.awswebservice.config.auth.CustomUserOAuth2UserService;
+import com.awswebservice.config.auth.security.commons.FormAuthenticationDetailsSource;
 import com.awswebservice.domain.user.Role;
 //import com.awswebservice.service.UserDetailServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -27,6 +29,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -114,6 +118,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     * */
 
 
+    @Autowired
+    private FormAuthenticationDetailsSource authenticationDetailsSource;
     // 필터 건더뛰기
     @Override
     public void configure(WebSecurity web) throws Exception{
@@ -198,6 +204,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            .usernameParameter("userId")    // custom userid & passwd param
 //            .passwordParameter("passwd")
             .loginPage("/login")
+            .authenticationDetailsSource(authenticationDetailsSource) // 인증 부가 기능
             .loginProcessingUrl("/login_proc")      //customizing
             .defaultSuccessUrl("/")
 
@@ -214,11 +221,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .successHandler(new AuthenticationSuccessHandler() {        // 강의 12)
                 @Override
                 public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-                    RequestCache requestCache = new HttpSessionRequestCache();      // 이 class를 활용해서
+                    RequestCache requestCache = new HttpSessionRequestCache();       // 이 class를 활용해서
+                    RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+//                    setDefaultTargetUrl("/");
                     SavedRequest savedRequest = requestCache.getRequest(request, response); // 원래 사용자가 가고자하던 그 url정보를 가지고있습니다.
-                    String redirectUrl = savedRequest.getRedirectUrl();
-                    System.out.println("redirectUrl: " + redirectUrl);
-                    response.sendRedirect(redirectUrl);
+
+                    if(savedRequest != null) {
+                        String targetUrl = savedRequest.getRedirectUrl();
+                        redirectStrategy.sendRedirect(request, response, targetUrl);
+                    } else {
+                        redirectStrategy.sendRedirect(request, response, "/");
+                    }
+//                    String redirectUrl = savedRequest.getRedirectUrl();
+//                    System.out.println(savedRequest + ": saved request");
+//                    System.out.println("redirectUrl: " + redirectUrl);
+//                    response.sendRedirect(redirectUrl);
 
 
 //                    https://github.com/onjsdnjs/corespringsecurityfinal/blob/master/src/main/java/io/security/corespringsecurity/security/handler/FormAuthenticationSuccessHandler.java
@@ -236,7 +253,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .rememberMe()
             .rememberMeParameter("remember")
-            .tokenValiditySeconds(3600)
+            .tokenValiditySeconds(3599)
             .userDetailsService(userDetailsService)   // 유저객채를 rememberMe 인증시 필요한 class
             ;
 
