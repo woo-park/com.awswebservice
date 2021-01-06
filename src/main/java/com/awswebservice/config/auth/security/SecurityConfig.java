@@ -3,32 +3,26 @@ package com.awswebservice.config.auth.security;
 
 //import com.wavestoked.domain.user.Role;
 //import com.awswebservice.config.auth.CustomUserOAuth2UserService;
+import com.awswebservice.config.auth.CustomUserOAuth2UserService;
 import com.awswebservice.config.auth.security.commons.FormAuthenticationDetailsSource;
-import com.awswebservice.domain.user.Role;
 //import com.awswebservice.service.UserDetailServiceImpl;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -53,9 +47,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserDetailsService userDetailsService;
 
+    private final CustomUserOAuth2UserService customUserOAuth2UserService;
 
-//    private final CustomUserOAuth2UserService customUserOAuth2UserService;
-
+    public SecurityConfig(CustomUserOAuth2UserService customUserOAuth2UserService) {
+        this.customUserOAuth2UserService = customUserOAuth2UserService;
+    }
 
 //    @Autowired
 //    UserDetailServiceImpl userDetailsService;
@@ -120,6 +116,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private FormAuthenticationDetailsSource authenticationDetailsSource;
+
+
+
     // 필터 건더뛰기
     @Override
     public void configure(WebSecurity web) throws Exception{
@@ -170,9 +169,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
+
+
         http    .csrf().disable()
                 .authorizeRequests()
 //                .antMatchers("/","/**","/users","/users/**").permitAll()
+                .antMatchers("/oauth2/**").permitAll()
+                .antMatchers("/login/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
+
                 .antMatchers("/","/users","/user/login/**").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
@@ -186,6 +191,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .and()
 //                .formLogin();
 
+
+        http
+                .oauth2Login()
+                .loginPage("/login")
+                .failureHandler(new AuthenticationFailureHandler() {
+                    @Override
+                    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+                        System.out.println("authentication" + exception.getMessage());
+
+                        response.sendRedirect("/login");
+                    }
+                })
+                .userInfoEndpoint()     // 이것과 밑 userService는 연결되어있다
+                .userService(customUserOAuth2UserService);
+
+
         /*
         http
 //            .antMatcher("/")       //강의 11)     // authorizeRequests()전에 antMatchers를 하면 부분부분 인가 정책을 하는것이고        // "특정한 요청에 인가정책에 따르게... vs 모든요청에 인가정책..."
@@ -196,6 +217,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
             .anyRequest().authenticated();
 */
+
+
 
         http
             .formLogin()                   // 인증방식은 기본적인 form 방식으로 username & password
@@ -267,7 +290,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                        response.sendRedirect("/login");
 //                    }
 //                }) //인증 예외
+//                .accessDeniedHandler(new OAuth2AccessDeniedHandler());
                 .accessDeniedHandler(new AccessDeniedHandler() {
+
+
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
                         response.sendRedirect("/denied");
@@ -294,6 +320,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 @Override
                 public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
                     HttpSession session = request.getSession();
+                    System.out.println("logout session invalidate");
                     session.invalidate();                       // session을 무효화 // 로그아웃된 유저의 session을 빈것으로 무효화
                 }
             })
@@ -314,8 +341,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .maximumSessions(1)
             .maxSessionsPreventsLogin(false) //default는 false    // true는 login을 아예 못하게 만드는 전략   // false는 이전session에서 더이상 활동못하게 막는 전략
             ;
-    }
 
+    }
 
 
 //    @Override
@@ -343,7 +370,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .userInfoEndpoint()
 //                .userService(customUserOAuth2UserService);
 //    }
-
+//
 //    @Autowired
 //    public void configure(AuthenticationManagerBuilder auth) throws Exception {
 //        auth.userDetailsService(userDetailsService)

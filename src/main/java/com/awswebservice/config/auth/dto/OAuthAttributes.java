@@ -76,6 +76,7 @@ public class OAuthAttributes {
                 .name((String)profile.get("nickname"))
                 .email((String)response.get("email"))
                 .picture((String)profile.get("profile_image_url"))
+
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
                 .build();
@@ -89,7 +90,8 @@ public class OAuthAttributes {
                 .name(name)
                 .email(email)
                 .picture(picture)
-                .role(Role.GUEST)
+//                .role(Role.GUEST)
+                .userRole("ROLE_USER")
                 .build();
     }
 

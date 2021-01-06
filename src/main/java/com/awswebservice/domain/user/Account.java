@@ -7,6 +7,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import com.awswebservice.domain.user.Role;
+import org.springframework.security.core.userdetails.User;
 
 import java.io.Serializable;
 
@@ -175,18 +176,19 @@ public class Account implements Serializable {
     @Column(nullable = true)
     private String userRole;
 
-
-    @Column
+    @Column(nullable = true)
     private String password;
 
 
     @Builder
-    public Account(String name, String email, String picture, Role role) { //using the private field variables
+    public Account(String name, String email, String picture, String userRole) { //using the private field variables
         this.name = name;
         this.email = email;
         this.picture = picture;
-        this.role = role;
+//        this.role = role;
+        this.userRole = userRole;
     }                       // now you have .save and .etc methods provided by lombok
+
 
     public Account update(String name, String picture) {
         this.name = name;
@@ -195,8 +197,9 @@ public class Account implements Serializable {
         return this;
     }
 
-    public String getRoleKey() {
-        return this.role.getKey();
-    }
+    // Role을 사용할적에 사용했었습니다.
+//    public String getRoleKey() {
+//        return this.role.getKey();
+//    }
 }
 

@@ -2,9 +2,13 @@ package com.awswebservice.web.login;
 
 
 import com.awswebservice.domain.user.Account;
+import com.awswebservice.web.dto.AccountDto;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +28,8 @@ public class LoginController {
                         @RequestParam(value = "exception", required = false) String exception, Model model){
         model.addAttribute("error",error);
         model.addAttribute("exception",exception);
+
+
         return "login";
     }
 
@@ -47,12 +53,26 @@ public class LoginController {
             account = (Account) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
 
         }
+        if (principal instanceof OAuth2AuthenticationToken) {
+            Object userDetailsTest = (Object)((OAuth2AuthenticationToken) principal).getPrincipal();
+
+//            account = (Account) ((OAuth2AuthenticationToken) principal).getPrincipal();
+
+//            AccountDto accountPrincipal = (AccountDto) ((OAuth2AuthenticationToken) principal).getPrincipal();
+            account = Account.builder().build();
+//            account = (Account) ((OAuth2AuthenticationToken) principal).getPrincipal();
+        }
 //        else if(principal instanceof AjaxAuthenticationToken){
 //            account = (Account) ((AjaxAuthenticationToken) principal).getPrincipal();
 //        }
 
-        model.addAttribute("username", account.getName());
-        model.addAttribute("exception", exception);
+
+        if(account != null) {
+            model.addAttribute("username", account.getName());
+            model.addAttribute("exception", exception);
+            model.addAttribute("name", account.getName());
+
+        }
 
         return "user/login/denied";
     }

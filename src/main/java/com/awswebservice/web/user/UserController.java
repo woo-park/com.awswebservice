@@ -1,5 +1,7 @@
 package com.awswebservice.web.user;
 
+import com.awswebservice.config.auth.LoginUser;
+import com.awswebservice.config.auth.dto.SessionUser;
 import com.awswebservice.domain.user.Account;
 import com.awswebservice.service.UserService;
 import com.awswebservice.web.dto.AccountDto;
@@ -7,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,8 +24,12 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/mypage")
-    public String myPage() throws Exception {
-
+    public String myPage(Model model, @LoginUser SessionUser user) throws Exception {
+        if(user != null) {
+            model.addAttribute("username", user.getName());
+            model.addAttribute("name", user.getName());
+            model.addAttribute("useremail", user.getEmail());
+        }
         return "user/mypage";
     }
 
