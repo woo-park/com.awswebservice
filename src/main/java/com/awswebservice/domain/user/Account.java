@@ -3,6 +3,7 @@ package com.awswebservice.domain.user;
 
 //import com.awswebservice.domain.BaseTimeEntity;
 
+import com.sun.istack.Nullable;
 import lombok.*;
 
 import javax.persistence.*;
@@ -176,17 +177,20 @@ public class Account implements Serializable {
     @Column(nullable = true)
     private String userRole;
 
+    @Nullable
     @Column(nullable = true)
     private String password;
 
 
     @Builder
-    public Account(String name, String email, String picture, String userRole) { //using the private field variables
+    public Account(String name, String email, String picture, String userRole, String password) { //using the private field variables
         this.name = name;
         this.email = email;
         this.picture = picture;
 //        this.role = role;
+
         this.userRole = userRole;
+        this.password = password;
     }                       // now you have .save and .etc methods provided by lombok
 
 

@@ -1,6 +1,7 @@
 package com.awswebservice.web.login;
 
 
+import com.awswebservice.config.auth.security.token.AjaxAuthenticationToken;
 import com.awswebservice.domain.user.Account;
 import com.awswebservice.web.dto.AccountDto;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,8 +29,7 @@ public class LoginController {
                         @RequestParam(value = "exception", required = false) String exception, Model model){
         model.addAttribute("error",error);
         model.addAttribute("exception",exception);
-
-
+        
         return "login";
     }
 
@@ -62,9 +62,10 @@ public class LoginController {
             account = Account.builder().build();
 //            account = (Account) ((OAuth2AuthenticationToken) principal).getPrincipal();
         }
-//        else if(principal instanceof AjaxAuthenticationToken){
-//            account = (Account) ((AjaxAuthenticationToken) principal).getPrincipal();
-//        }
+
+        if(principal instanceof AjaxAuthenticationToken){
+            account = (Account) ((AjaxAuthenticationToken) principal).getPrincipal();
+        }
 
 
         if(account != null) {

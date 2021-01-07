@@ -1,4 +1,4 @@
-package com.awswebservice.config.auth.security;
+package com.awswebservice.config.auth.security.service;
 
 import com.awswebservice.domain.user.Account;
 import lombok.Getter;

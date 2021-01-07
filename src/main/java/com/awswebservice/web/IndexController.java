@@ -37,6 +37,10 @@ public class IndexController {
     }
 
 
+    @GetMapping("/api/login")
+    public String test(Model model) {
+        return "test";
+    }
 
 
 

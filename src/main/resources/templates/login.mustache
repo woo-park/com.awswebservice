@@ -30,6 +30,7 @@
                 </div>
                 <!--                <button type="button" onclick="formLogin()" id="formbtn" class="btn btn-lg btn-primary btn-block">Ajax 로그인</button>-->
                 <button type="submit" class="btn btn-lg btn-primary btn-block">로그인</button>
+                <button type="button" onclick="formLogin()" id="formbtn" class="btn btn-lg btn-primary btn-block">Ajax 로그인</button>
             </form>
 
 
@@ -45,10 +46,12 @@
 <script>
     function formLogin(e) {
 
+        console.log("formLogin();")
         var username = $("input[name='username']").val().trim();
         var password = $("input[name='password']").val().trim();
         var data = {"username" : username, "password" : password};
 
+        console.log(data, ":data");
         // var csrfHeader = $('meta[name="_csrf_header"]').attr('content')
         // var csrfToken = $('meta[name="_csrf"]').attr('content')
 
@@ -58,6 +61,7 @@
             data: JSON.stringify(data),
             dataType: "json",
             beforeSend : function(xhr){
+                console.log('beforeSend xhr:', xhr);
                 // xhr.setRequestHeader(csrfHeader, csrfToken);
                 xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
                 xhr.setRequestHeader("Content-type","application/json");
@@ -68,7 +72,9 @@
 
             },
             error : function(xhr, status, error) {
-                console.log(error);
+                console.log(error,':error');
+                console.log(xhr,':xhr');
+                console.log(status,':status');
                 window.location = '/login?error=true&exception=' + xhr.responseText;
             }
         });

@@ -7,6 +7,7 @@ import com.awswebservice.service.UserService;
 import com.awswebservice.web.dto.AccountDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,6 +25,7 @@ public class UserController {
     private PasswordEncoder passwordEncoder;
 
     @GetMapping("/mypage")
+    @PreAuthorize("hasRole('USER') or hasRole('MANAGER')")
     public String myPage(Model model, @LoginUser SessionUser user) throws Exception {
         if(user != null) {
             model.addAttribute("username", user.getName());
