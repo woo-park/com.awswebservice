@@ -9,6 +9,18 @@ X-Requested-With: XMLHttpRequest
 }
 
 ### Send POST request with body as parameters
+POST http://localhost:8080/api/login
+Content-Type: application/json
+X-Requested-With: XMLHTTPRequest
+
+{
+  "username": "manager",
+  "password": "1111"
+}
+
+
+
+### Send POST request with body as parameters
 POST http://localhost:8080/mypage
 Content-Type: application/json
 X-Requested-With: XMLHttpRequest

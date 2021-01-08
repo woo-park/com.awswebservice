@@ -16,6 +16,7 @@ public class AjaxAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override

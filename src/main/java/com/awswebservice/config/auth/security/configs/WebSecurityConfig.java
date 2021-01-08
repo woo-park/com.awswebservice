@@ -2,6 +2,7 @@ package com.awswebservice.config.auth.security.configs;
 
 import com.awswebservice.config.auth.CustomUserOAuth2UserService;
 import com.awswebservice.config.auth.security.commons.FormAuthenticationDetailsSource;
+import com.awswebservice.config.auth.security.filter.AjaxLoginProcessingFilter;
 import com.awswebservice.config.auth.security.handler.FormAccessDeniedHandler;
 import com.awswebservice.config.auth.security.provider.FormAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,14 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
+import javax.servlet.Filter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -124,6 +127,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+
     // 강의 2) 사용자 정의 보안 기능 구현
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -183,7 +187,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
     }
-
 
 //    @Override
 //    protected void configure(HttpSecurity http) throws Exception {

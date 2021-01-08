@@ -3,6 +3,7 @@ package com.awswebservice.config.auth.security.filter;
 
 import com.awswebservice.config.auth.security.token.AjaxAuthenticationToken;
 import com.awswebservice.util.WebUtil;
+import com.awswebservice.web.dto.Account2Dto;
 import com.awswebservice.web.dto.AccountDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;
@@ -26,24 +27,36 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public AjaxLoginProcessingFilter() {
-        super(new AntPathRequestMatcher("/ajaxLogin", "POST"));
+        super(new AntPathRequestMatcher("/api/login", "POST"));
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException {
 
+//        if (!isAjax(request)) {
+//            throw new IllegalStateException("Authentication is not supported");
+//        }
+
         if (!HttpMethod.POST.name().equals(request.getMethod()) || !WebUtil.isAjax(request)) {
             throw new IllegalArgumentException("Authentication method not supported");
         }
 
-        AccountDto accountDto = objectMapper.readValue(request.getReader(), AccountDto.class);
+        Account2Dto account2Dto = objectMapper.readValue(request.getReader(), Account2Dto.class);
 
-        if (StringUtils.isEmpty(accountDto.getName()) || StringUtils.isEmpty(accountDto.getPassword())) {
-            throw new AuthenticationServiceException("Username or Password not provided");
+        System.out.println("pause");
+        if (StringUtils.isEmpty(account2Dto.getUsername()) || StringUtils.isEmpty(account2Dto.getPassword())) {
+            throw new AuthenticationServiceException("Username or Password is empty");
         }
-        AjaxAuthenticationToken token = new AjaxAuthenticationToken(accountDto.getName(),accountDto.getPassword());
+        AjaxAuthenticationToken token = new AjaxAuthenticationToken(account2Dto.getUsername(),account2Dto.getPassword());
 
         return this.getAuthenticationManager().authenticate(token);
+    }
+
+    private boolean isAjax(HttpServletRequest request) {
+        if("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return true;
+        }
+        return false;
     }
 }
