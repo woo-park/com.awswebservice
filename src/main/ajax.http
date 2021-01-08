@@ -26,3 +26,12 @@ Content-Type: application/json
 X-Requested-With: XMLHttpRequest
 
 ###
+
+#### Send POST request with body as parameters
+POST http://localhost:8080/mypage
+Content-Type:application/json
+
+{
+  "username" : "user",
+  "token" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIiwicm9sZXMiOlsiUk9MRV9VU0VSIl0sImlhdCI6MTUyNDY0OTI4OSwiZXhwIjoxNTI0NjUyODg5fQ.Lj1w6vPJNdJbcY6cAhO3DbkgCAqpG7lzztzUeKMyNyE"
+}

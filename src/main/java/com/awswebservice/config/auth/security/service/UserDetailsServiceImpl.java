@@ -84,4 +84,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new AccountContext(account, roles);
     }
+
+
+    // https://github.com/onjsdnjs/springboot-jwt-sample        // CustomUserDetailsService
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        return this.users.findByUsername(username)
+//                .orElseThrow(() -> new UsernameNotFoundException("Username: " + username + " not found"));
+//    }
 }
