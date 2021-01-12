@@ -1,24 +1,17 @@
 /**
- * 
+ *
  */
-package com.awswebservice.web.dto;
+package com.awswebservice.config.auth.dto;
 
 import java.io.Serializable;
 
-/**
- * @author Dinesh.Rajput
- *
- */
 public class AccountCredentials implements Serializable{
-	
-	/**
-	 * 
-	 */
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String username;
 	private String password;
-	
+
 	public String getUsername() {
 		return username;
 	}
@@ -31,6 +24,6 @@ public class AccountCredentials implements Serializable{
 	public void setPassword(String password) {
 		this.password = password;
 	}
-	
-	
+
+
 }

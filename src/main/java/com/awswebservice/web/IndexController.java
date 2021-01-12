@@ -37,10 +37,16 @@ public class IndexController {
     }
 
 
-    @GetMapping("/api/login")
+//    @GetMapping("/api/login")
+//    public String test(Model model) {
+//        return "test";
+//    }
+
+    @GetMapping("/auth/loginjwt")
     public String test(Model model) {
         return "test";
     }
+
 
 
 

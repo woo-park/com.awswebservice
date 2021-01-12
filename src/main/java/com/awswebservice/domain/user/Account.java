@@ -3,6 +3,7 @@ package com.awswebservice.domain.user;
 
 //import com.awswebservice.domain.BaseTimeEntity;
 
+import com.awswebservice.domain.prodosUser.ProdosUser;
 import com.sun.istack.Nullable;
 import lombok.*;
 

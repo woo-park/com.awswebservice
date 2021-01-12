@@ -1,6 +1,7 @@
 package com.awswebservice.config.auth.security.configs;
 
 import com.awswebservice.config.auth.CustomUserOAuth2UserService;
+import com.awswebservice.config.auth.JwtAuthenticationService;
 import com.awswebservice.config.auth.security.commons.FormAuthenticationDetailsSource;
 import com.awswebservice.config.auth.security.filter.AjaxLoginProcessingFilter;
 import com.awswebservice.config.auth.security.handler.FormAccessDeniedHandler;
@@ -105,6 +106,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
 
+    @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -126,7 +128,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return commonAccessDeniedHandler;
     }
 
-
+    @Autowired
+    JwtAuthenticationService jwtAuthenticationService;
 
     // 강의 2) 사용자 정의 보안 기능 구현
     @Override
@@ -137,6 +140,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/oauth2/**").permitAll()
                 .antMatchers("/login/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
+
+                .antMatchers( "/auth/loginjwt").permitAll()
+                .antMatchers(HttpMethod.POST, "/auth/loginjwt").permitAll()
                 .antMatchers("/","/users","/user/login/**").permitAll()
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
@@ -144,6 +150,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/login").permitAll()  //강의 12)
 //                .antMatchers("/user").hasRole("USER")        // antMatchers가 authorizeRequests()후에 오면, 모든 url을 인가 정책에 따르게 하는것이다     //"모든 요청에 대해서 인가 정책에 따르게 하겠습니다."
                 .antMatchers("/admin/pay").hasRole("ADMIN")
+
                 .antMatchers("/admin/**").access("hasRole('ADMIN') or hasRole('SYS')")
                 .anyRequest().authenticated();
 
@@ -152,15 +159,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/login")
                 .loginProcessingUrl("/login_proc")
-                .authenticationDetailsSource(formAuthenticationDetailsSource)
+//                .authenticationDetailsSource(formAuthenticationDetailsSource)
                 .successHandler(formAuthenticationSuccessHandler)
                 .failureHandler(formAuthenticationFailureHandler)
                 .permitAll()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
+                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login2"))
                 .accessDeniedPage("/denied")
-                .accessDeniedHandler(accessDeniedHandler());
+                .accessDeniedHandler(accessDeniedHandler())
+                .and().apply(new JwtAuthenticationConfigurer(jwtAuthenticationService));
 
         http
                 .oauth2Login()

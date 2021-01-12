@@ -1,23 +1,24 @@
 //package com.awswebservice.web;
 //
-////import com.awswebservice.config.auth.security.JwtAuthenticationService;
-//import com.awswebservice.domain.prodosUser.ProdosUserRepository;
-//import com.awswebservice.web.dto.AccountCredentials;
+////import com.awswebservice.config.auth.JwtAuthenticationService;
+////import com.awswebservice.config.auth.JwtAuthenticationService;
+//import com.awswebservice.config.auth.JwtAuthenticationService;
+//import com.awswebservice.config.auth.dto.AccountCredentials;
+//
+//import com.awswebservice.domain.user.UserRepository;
 //import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.ResponseEntity;
+//import org.springframework.http.MediaType;
 //import org.springframework.security.authentication.AuthenticationManager;
 //import org.springframework.security.authentication.BadCredentialsException;
 //import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 //import org.springframework.security.core.AuthenticationException;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RestController;
 //
+//import org.springframework.ui.Model;
+//import org.springframework.web.bind.annotation.*;
+//
+//import javax.servlet.http.HttpServletResponse;
 //import java.util.ArrayList;
-//import java.util.HashMap;
 //import java.util.List;
-//import java.util.Map;
 //
 //import static org.springframework.http.ResponseEntity.ok;
 //
@@ -32,10 +33,17 @@
 //    JwtAuthenticationService jwtAuthenticationService;
 //
 //    @Autowired
-//    ProdosUserRepository prodosUserRepository;
+//    UserRepository userRepository;
+////    consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+////    produces = {MediaType.APPLICATION_ATOM_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
+////    @PostMapping("/auth/loginjwt")
 //
-//    @PostMapping("/auth/login")
-//    public ResponseEntity<Map<Object, Object>> signin(@RequestBody AccountCredentials credentials) {
+////    @RequestMapping(value = "/auth/loginjwt", method = RequestMethod.POST, consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+//    @PostMapping(
+//        path = "/auth/loginjwt",
+////        consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+//            consumes = MediaType.APPLICATION_JSON_VALUE)
+//    public String signin(Model model, @RequestBody AccountCredentials credentials,  HttpServletResponse response) {
 //
 //        try {
 //            authenticationManager.authenticate(
@@ -43,22 +51,55 @@
 //
 //            List<String> list = new ArrayList<>();
 //
-//            list.add(this.prodosUserRepository.findByUsername(credentials.getUsername())
-//                    .orElseThrow(
-//                            () -> new UsernameNotFoundException("Username " + credentials.getUsername() + "not found"))
-//                    .getRole());
+////            list.add(this.userRepository.findByName(credentials.getUsername())
+////                    .orElseThrow(
+////                            () -> new UsernameNotFoundException("Username " + credentials.getUsername() + "not found"))
+////                    .getRole());
+//
+//            list.add(this.userRepository.findByName(credentials.getUsername()).getUserRole());
 //
 //            String token = jwtAuthenticationService.createToken(credentials.getUsername(), list);
-//
-//            Map<Object, Object> model = new HashMap<>();
-//            model.put("username", credentials.getUsername());
-//            model.put("token", token);
-//            return ok(model);
+//            response.setHeader("Authorization", token);
+////            Map<Object, Object> model = new HashMap<>();
+//            model.addAttribute("username", credentials.getUsername());
+//            model.addAttribute("token", token);
+//            return "test";
 //        } catch (AuthenticationException e) {
 //            throw new BadCredentialsException("Invalid username/password supplied");
 //        }
 //    }
 //
-//
+////    @PostMapping(
+////            path = "/auth/loginjwt",
+//////        consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE},
+//////            MediaType.APPLICATION_JSON_VALUE,
+////            consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+////    public String signin2(Model model, @ModelAttribute AccountCredentials credentials,  HttpServletResponse response) {
+////
+////        try {
+////            authenticationManager.authenticate(
+////                    new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword()));
+////
+////            List<String> list = new ArrayList<>();
+////
+//////            list.add(this.userRepository.findByName(credentials.getUsername())
+//////                    .orElseThrow(
+//////                            () -> new UsernameNotFoundException("Username " + credentials.getUsername() + "not found"))
+//////                    .getRole());
+////
+////            list.add(this.userRepository.findByName(credentials.getUsername()).getUserRole());
+////
+////            String token = jwtAuthenticationService.createToken(credentials.getUsername(), list);
+////            response.setHeader("Authorization", token);
+//////            Map<Object, Object> model = new HashMap<>();
+////            model.addAttribute("username", credentials.getUsername());
+////            model.addAttribute("token", token);
+////            return "test";
+////        } catch (AuthenticationException e) {
+////            throw new BadCredentialsException("Invalid username/password supplied");
+////        }
+////    }
+////
+////
 //
 //}
