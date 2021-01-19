@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -165,10 +166,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login2"))
+//                .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login2"))
                 .accessDeniedPage("/denied")
-                .accessDeniedHandler(accessDeniedHandler())
-                .and().apply(new JwtAuthenticationConfigurer(jwtAuthenticationService));
+                .accessDeniedHandler(accessDeniedHandler());
+//                .and().apply(new JwtAuthenticationConfigurer(jwtAuthenticationService));
 
         http
                 .oauth2Login()
@@ -186,7 +187,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
         http
+
             .sessionManagement()
+//                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .sessionFixation().changeSessionId()    // servlet 3.1 이상은 기본으로 changeSessionId invoked되지만, custom할수있다 ( none, migrateSession <- 3.1이하 , newSession 으로  // 세션 고정 공격을 막기위해 cookie session id값을 바꿔줘야한다
             .maximumSessions(1)
             .maxSessionsPreventsLogin(false) //default는 false    // true는 login을 아예 못하게 만드는 전략   // false는 이전session에서 더이상 활동못하게 막는 전략
